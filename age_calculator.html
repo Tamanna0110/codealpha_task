@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .input-field {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.8);
+        }
+        .input-field:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+            background: white;
+        }
+        .result-animation {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        #calculate-btn {
+            transition: all 0.3s ease, transform 0.2s ease;
+        }
+        #calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(101, 66, 214, 0.3);
+        }
+        #calculate-btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex items-center justify-center p-4">
+    <div class="glass-effect p-8 max-w-md w-full">
+        <div class="text-center mb-8">
+            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/164551a0-1470-4df2-a979-72d6c3e79116.png" alt="Calendar icon" class="mx-auto mb-4 rounded-full" />
+            <h1 class="text-3xl font-bold text-gray-800">Age Calculator</h1>
+            <p class="text-gray-600 mt-2">Discover your exact age in years, months, and days</p>
+        </div>
+
+        <div class="space-y-4">
+            <div class="flex space-x-2">
+                <div class="flex-1">
+                    <label for="day" class="block text-sm font-medium text-gray-700 mb-1">Day</label>
+                    <input type="number" id="day" min="1" max="31" inputmode="numeric"
+                           class="input-field w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                           placeholder="DD" required>
+                </div>
+                <div class="flex-1">
+                    <label for="month" class="block text-sm font-medium text-gray-700 mb-1">Month</label>
+                    <input type="number" id="month" min="1" max="12" inputmode="numeric"
+                           class="input-field w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                           placeholder="MM" required>
+                </div>
+                <div class="flex-1">
+                    <label for="year" class="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                    <input type="number" id="year" min="1900" inputmode="numeric"
+                           class="input-field w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                           placeholder="YYYY" required>
+                </div>
+            </div>
+
+            <button id="calculate-btn" 
+                    class="w-full bg-gradient-to-r from-blue-600 to-purple-700 text-white py-3 rounded-xl font-semibold hover:brightness-110 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-2 shadow-md">
+                Calculate Age
+            </button>
+
+            <div id="result" class="result-animation hidden">
+                <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Your Age Is</h3>
+                    <div class="flex justify-between">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600" id="years">--</div>
+                            <div class="text-xs text-gray-500">YEARS</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600" id="months">--</div>
+                            <div class="text-xs text-gray-500">MONTHS</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600" id="days">--</div>
+                            <div class="text-xs text-gray-500">DAYS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="error" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-md border border-red-100"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentYear = new Date().getFullYear();
+            document.getElementById('year').setAttribute('max', currentYear);
+        });
+
+        document.getElementById('calculate-btn').addEventListener('click', calculateAge);
+
+        function calculateAge() {
+            const day = parseInt(document.getElementById('day').value);
+            const month = parseInt(document.getElementById('month').value) - 1;
+            const year = parseInt(document.getElementById('year').value);
+
+            const errorElement = document.getElementById('error');
+            const resultElement = document.getElementById('result');
+            errorElement.classList.add('hidden');
+            resultElement.classList.add('hidden');
+
+            if (isNaN(day) || isNaN(month) || isNaN(year)) {
+                showError("Please fill in all fields with valid numbers");
+                return;
+            }
+
+            const today = new Date();
+            const birthDate = new Date(year, month, day);
+
+            if (birthDate.getDate() !== day || birthDate.getMonth() !== month || birthDate.getFullYear() !== year) {
+                showError("Please enter a valid date");
+                return;
+            }
+
+            if (birthDate > today) {
+                showError("Birth date cannot be in the future");
+                return;
+            }
+
+            let ageYears = today.getFullYear() - birthDate.getFullYear();
+            let ageMonths = today.getMonth() - birthDate.getMonth();
+            let ageDays = today.getDate() - birthDate.getDate();
+
+            if (ageDays < 0) {
+                ageMonths--;
+                ageDays += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+            }
+
+            if (ageMonths < 0) {
+                ageYears--;
+                ageMonths += 12;
+            }
+
+            document.getElementById('years').textContent = ageYears;
+            document.getElementById('months').textContent = ageMonths;
+            document.getElementById('days').textContent = ageDays;
+
+            resultElement.classList.remove('hidden');
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('error');
+            errorElement.textContent = message;
+            errorElement.classList.remove('hidden');
+        }
+
+        function validateInput(element, min, max) {
+            let value = parseInt(element.value);
+            if (isNaN(value) || value < min || value > max) {
+                element.value = '';
+            } else {
+                element.value = value;
+            }
+        }
+
+        document.getElementById('day').addEventListener('input', function () {
+            validateInput(this, 1, 31);
+        });
+
+        document.getElementById('month').addEventListener('input', function () {
+            validateInput(this, 1, 12);
+        });
+
+        document.getElementById('year').addEventListener('input', function () {
+            const currentYear = new Date().getFullYear();
+            validateInput(this, 1900, currentYear);
+        });
+
+        function handleAutoTab(event) {
+            const input = event.target;
+            if (input.value.length === input.maxLength) {
+                const form = input.form;
+                const index = Array.from(form).indexOf(input);
+                if (form.elements[index + 1]) {
+                    form.elements[index + 1].focus();
+                }
+            }
+        }
+
+        document.getElementById('day').addEventListener('input', handleAutoTab);
+        document.getElementById('month').addEventListener('input', handleAutoTab);
+
+        // Trigger age calculation on Enter key
+        document.getElementById('year').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                calculateAge();
+            }
+        });
+    </script>
+</body>
+</html>
